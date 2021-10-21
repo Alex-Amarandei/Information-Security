@@ -35,7 +35,7 @@ async function handlePostReq(req, res) {
 
     const { pathname } = url.parse(req.url);
     if (
-        pathname !== "/operating/mode" &&
+        pathname !== "/mode" &&
         pathname !== "/initialize" &&
         pathname !== "/text"
     ) {
@@ -62,7 +62,7 @@ async function handlePostReq(req, res) {
                 const data = JSON.parse(buffer.toString());
 
                 switch (pathname) {
-                    case "/operating/mode":
+                    case "/mode":
                         global.mode = data.mode;
                         res.write(JSON.stringify({ status: 200 }));
                         res.end();
@@ -80,41 +80,39 @@ async function handlePostReq(req, res) {
                         break;
 
                     case "/text":
-                        let decryptedMessage = "";
-                        const encryptedBlocks = data.encrypted;
+                        let decrypted = "";
+                        const encrypted = data.encrypted;
 
                         switch (global.mode) {
                             case "ECB":
-                                encryptedBlocks.forEach((block) => {
-                                    decryptedMessage =
-                                        decryptedMessage +
+                                encrypted.forEach((block) => {
+                                    decrypted =
+                                        decrypted +
                                         AES.decrypt(block, global.privateKey).toString(
                                             CryptoJS.enc.Utf8
                                         );
                                 });
-                                console.log(decryptedMessage);
+                                console.log(decrypted);
                                 break;
 
                             case "CFB":
-                                let blockCipher = AES.encrypt(
+                                let cipher = AES.encrypt(
                                     global.iv,
                                     global.privateKey
                                 ).toString();
 
-                                decryptedMessage =
-                                    decryptedMessage + XOR(blockCipher, encryptedBlocks[0]);
+                                decrypted = decrypted + XOR(cipher, encrypted[0]);
 
-                                for (i = 1; i < encryptedBlocks.length; i++) {
-                                    blockCipher = AES.encrypt(
-                                        encryptedBlocks[i - 1],
+                                for (i = 1; i < encrypted.length; i++) {
+                                    cipher = AES.encrypt(
+                                        encrypted[i - 1],
                                         global.privateKey
                                     ).toString();
 
-                                    decryptedMessage =
-                                        decryptedMessage + XOR(blockCipher, encryptedBlocks[i]);
+                                    decrypted = decrypted + XOR(cipher, encrypted[i]);
                                 }
 
-                                console.log(decryptedMessage);
+                                console.log(decrypted);
 
                                 break;
                         }

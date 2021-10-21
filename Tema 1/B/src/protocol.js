@@ -2,7 +2,7 @@ const fetch = require("cross-fetch");
 const KeyManager = "http://localhost:3030/";
 
 const initialize = async() => {
-    const response = await fetch(`${KeyManager}initial/info`);
+    const response = await fetch(`${KeyManager}start`);
     if (response.status !== 200) {
         console.log("Problem occured during run. Status Code: " + response.status);
         return;
