@@ -1,0 +1,23 @@
+{
+    "name": "alex",
+    "version": "1.0.0",
+    "description": "",
+    "main": "server.js",
+    "dependencies": {
+        "aes-js": "^3.1.2",
+        "cross-fetch": "^3.1.4",
+        "crypto-js": "^4.1.1",
+        "mysql": "^2.18.1",
+        "mysql2": "^2.2.5",
+        "node-fetch": "^3.0.0",
+        "node-forge": "^0.10.0",
+        "string-xor-operation": "^0.0.1",
+        "xmlhttprequest": "^1.8.0"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node server.js"
+    },
+    "author": "",
+    "license": "ISC"
+}
