@@ -16,24 +16,25 @@ const initialize = async() => {
     global.iv = iv;
 };
 
-const connect = async() => {
+const start = async() => {
     const responseSendMode = await sendMode();
-
-    if (responseSendMode !== "Success") return;
+    if (responseSendMode !== "Completed") return;
 
     const responseGetPrivateKey = await getPrivateKey();
-    if (responseGetPrivateKey !== "Success") return;
+    if (responseGetPrivateKey !== "Completed") return;
 
     const responseSendPrivateKey = await sendPrivateKey();
-    if (responseSendPrivateKey !== "Success") return;
+    if (responseSendPrivateKey !== "Completed") return;
 
     const responseSendEncryptedFile = await sendEncryptedFile();
-    if (responseSendEncryptedFile !== "Success") return;
+    if (responseSendEncryptedFile !== "Completed") return;
+
+    console.log("Everything went accordingly.");
 };
 
 const fileToBlocks = () => {
     return new Promise((resolve, reject) => {
-        fs.readFile("file.txt", "utf8", (err, data) => {
+        fs.readFile("input.txt", "utf8", (err, data) => {
             if (err) {
                 reject(err);
             }
@@ -44,44 +45,46 @@ const fileToBlocks = () => {
 };
 
 const ECBencrypt = (blocks) => {
-    let encryptedBlocks = blocks.map((block) =>
-        AES.encrypt(block, global.privateKey).toString()
-    );
-    return encryptedBlocks;
+    let encrypted = [];
+    blocks.forEach((block) => {
+        encrypted.push(AES.encrypt(block, global.privateKey).toString());
+    });
+
+    return encrypted;
 };
 
 const CFBencrypt = (blocks) => {
-    var encryptedBlocks = [];
-    var blockCipher = AES.encrypt(global.iv, global.privateKey).toString();
+    var encrypted = [];
+    var cipher = AES.encrypt(global.iv, global.privateKey).toString();
 
     for (let i = 0; i < blocks.length; i++) {
-        encryptedBlocks[i] = XOR(blockCipher, blocks[i]);
-        blockCipher = AES.encrypt(encryptedBlocks[i], global.privateKey).toString();
+        encrypted[i] = XOR(cipher, blocks[i]);
+        cipher = AES.encrypt(encrypted[i], global.privateKey).toString();
     }
-    return encryptedBlocks;
+    return encrypted;
 };
 
 const sendEncryptedFile = async() => {
     let blocks = await fileToBlocks();
-    let encryptedBlocks = [];
+    let encrypted = [];
     if (global.mode === "ECB") {
-        encryptedBlocks = ECBencrypt(blocks);
+        encrypted = ECBencrypt(blocks);
     } else {
-        encryptedBlocks = CFBencrypt(blocks);
+        encrypted = CFBencrypt(blocks);
     }
-    const response = await fetch(`${B}message`, {
+    const response = await fetch(`${B}text`, {
         method: "POST",
         headers: {
             "Content-type": "application/json",
         },
-        body: JSON.stringify({ encrypted: encryptedBlocks }),
+        body: JSON.stringify({ encrypted: encrypted }),
     });
     if (response.status !== 200) {
         console.log("Problem occured during run. Status Code: " + response.status);
         return;
     }
 
-    return "Success";
+    return "Completed";
 };
 
 const sendMode = async() => {
@@ -94,12 +97,13 @@ const sendMode = async() => {
             mode: global.mode,
         }),
     });
+
     if (response.status !== 200) {
         console.log("Problem occured during run. Status Code: " + response.status);
         return;
     }
 
-    return "Success";
+    return "Completed";
 };
 
 const getPrivateKey = async() => {
@@ -109,17 +113,18 @@ const getPrivateKey = async() => {
         console.log("Problem occured during run. Status Code: " + response.status);
         return;
     }
+
     const result = await response.json();
     global.privateKey = AES.decrypt(result.encrypted, global.publicKey).toString(
         CryptoJS.enc.Utf8
     );
 
-    return "Success";
+    return "Completed";
 };
 
 const sendPrivateKey = async() => {
     const encryptedPrivateKey = AES.encrypt(global.privateKey, global.publicKey);
-    const response = await fetch(`${B}setup`, {
+    const response = await fetch(`${B}initialize`, {
         method: "post",
         headers: {
             "Content-type": "application/json",
@@ -133,7 +138,7 @@ const sendPrivateKey = async() => {
         console.log("Problem occured during run. Status Code: " + response.status);
         return;
     }
-    return "Success";
+    return "Completed";
 };
 
 function XOR(a, b) {
@@ -146,7 +151,7 @@ function XOR(a, b) {
 
 const Protocol = function() {};
 Protocol.prototype.initialize = initialize;
-Protocol.prototype.connect = connect;
+Protocol.prototype.start = start;
 Protocol.prototype.B = B;
 Protocol.prototype.KeyManager = KeyManager;
 module.exports = new Protocol();

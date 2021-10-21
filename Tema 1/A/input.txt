@@ -1,0 +1,1 @@
+Acesta este textul ce urmeaza a fi criptat si ar trebui ca atunci cand este citit sa fie trecut prin criptare si decriptare si sa fie inteligibil si complet. This is the text which is to be encrypted and is supposed to be read only after encrypting and decrypting and is to be intelligible and complete.

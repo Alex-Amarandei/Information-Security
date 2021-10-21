@@ -1,6 +1,5 @@
 const http = require("http");
 const readline = require("readline");
-
 const Protocol = require("./src/protocol");
 const port = 3031;
 
@@ -42,22 +41,22 @@ const handler = () => {
             case "1":
                 global.mode = "ECB";
                 console.log(
-                    "Please type connect to connect or exit to exit the program."
+                    "Please type:\nstart to connect\nquit to exit the program."
                 );
                 break;
 
             case "2":
                 global.mode = "CFB";
                 console.log(
-                    "Please type connect to connect or exit to exit the program."
+                    "Please type:\nstart to connect\nquit to exit the program."
                 );
                 break;
 
-            case "connect":
-                await Protocol.connect();
+            case "start":
+                await Protocol.start();
                 break;
 
-            case "exit":
+            case "quit":
                 readLine.close();
                 break;
         }
