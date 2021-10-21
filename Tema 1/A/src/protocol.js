@@ -6,7 +6,7 @@ const AES = require("crypto-js/aes");
 const CryptoJS = require("crypto-js");
 
 const initialize = async() => {
-    const response = await fetch(`${KeyManager}initial/info`);
+    const response = await fetch(`${KeyManager}start`);
     if (response.status !== 200) {
         console.log("Problem occured during run. Status Code: " + response.status);
         return;
@@ -88,7 +88,7 @@ const sendEncryptedFile = async() => {
 };
 
 const sendMode = async() => {
-    const response = await fetch(`${B}operating/mode`, {
+    const response = await fetch(`${B}mode`, {
         method: "POST",
         headers: {
             "Content-type": "application/json",
