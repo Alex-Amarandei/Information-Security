@@ -36,20 +36,20 @@ async function handlePostReq(req, res) {
     const { pathname } = url.parse(req.url);
     if (
         pathname !== "/operating/mode" &&
-        pathname !== "/setup" &&
-        pathname !== "/message"
+        pathname !== "/initialize" &&
+        pathname !== "/text"
     ) {
         return handleError(res, 404);
     }
 
     req
-        .on("data", (chunk) => {
-            const offset = pos + chunk.length;
+        .on("data", (block) => {
+            const offset = pos + block.length;
             if (offset > size) {
                 reject(413, "Too Large", res);
                 return;
             }
-            chunk.copy(buffer, pos);
+            block.copy(buffer, pos);
             pos = offset;
         })
         .on("end", async() => {
@@ -64,21 +64,22 @@ async function handlePostReq(req, res) {
                 switch (pathname) {
                     case "/operating/mode":
                         global.mode = data.mode;
-                        res.write({ status: 200 });
+                        res.write(JSON.stringify({ status: 200 }));
                         res.end();
                         break;
 
-                    case "/setup":
+                    case "/initialize":
                         global.privateKey = AES.decrypt(
                             data.encrypted,
                             global.publicKey
                         ).toString(CryptoJS.enc.Utf8);
                         console.log("Private Key: " + global.privateKey);
-                        res.write({ status: 200 });
+
+                        res.write(JSON.stringify({ status: 200 }));
                         res.end();
                         break;
 
-                    case "/message":
+                    case "/text":
                         let decryptedMessage = "";
                         const encryptedBlocks = data.encrypted;
 
@@ -117,7 +118,7 @@ async function handlePostReq(req, res) {
 
                                 break;
                         }
-                        res.write({ status: 200 });
+                        res.write(JSON.stringify({ status: 200 }));
                         res.end();
                         break;
 
