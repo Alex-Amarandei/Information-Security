@@ -29,13 +29,13 @@ const server = http.createServer((req, res) => {
 async function handleGetReq(req, res) {
     const { pathname } = url.parse(req.url);
 
-    if (pathname !== "/initial/info" && pathname !== "/private/key") {
+    if (pathname !== "/start" && pathname !== "/private/key") {
         return handleError(res, 404);
     }
 
     try {
         switch (pathname) {
-            case "/initial/info":
+            case "/start":
                 res.write(
                     JSON.stringify({
                         publicKey: global.publicKey,
@@ -73,18 +73,6 @@ async function handleGetReq(req, res) {
     }
 }
 
-function createKeys() {
-    global.publicKey = forge.random.getBytesSync(16);
-    global.privateKey = forge.random.getBytesSync(16);
-    global.iv = forge.random.getBytesSync(16);
-
-    console.log("Public Key: " + global.publicKey);
-
-    console.log("Private Key: " + global.privateKey);
-
-    console.log("Initialisation Vector: " + global.iv);
-}
-
 function handleError(res, code) {
     res.statusCode = code;
     res.end(`{"error": "${http.STATUS_CODES[code]}"}`);
@@ -93,5 +81,10 @@ function handleError(res, code) {
 
 server.listen(port, async() => {
     console.log(`Server listening on port ${port}`);
-    createKeys();
+
+    global.publicKey = forge.random.getBytesSync(16);
+    global.privateKey = forge.random.getBytesSync(16);
+    global.iv = forge.random.getBytesSync(16);
+
+    console.log("Private Key: " + global.privateKey);
 });
