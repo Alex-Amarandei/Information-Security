@@ -78,14 +78,11 @@ function createKeys() {
     global.privateKey = forge.random.getBytesSync(16);
     global.iv = forge.random.getBytesSync(16);
 
-    console.log("Public Key:");
-    console.log(global.publicKey);
+    console.log("Public Key: " + global.publicKey);
 
-    console.log("Private Key:");
-    console.log(global.privateKey);
+    console.log("Private Key: " + global.privateKey);
 
-    console.log("Initialisation Vector:");
-    console.log(global.iv);
+    console.log("Initialisation Vector: " + global.iv);
 }
 
 function handleError(res, code) {
